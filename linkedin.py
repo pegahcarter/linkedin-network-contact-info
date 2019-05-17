@@ -7,10 +7,13 @@ import time
 chrome = chrome.Chrome()
 chrome.get('https://linkedin.com/mynetwork/invite-connect/connections/')
 
+
+chrome.scroll_down()
+
 while True:
-    connections = chrome.load('section/ul/li/div')
-    chrome.web.execute_script("window.scrollBy(0,4000)")
-    time.sleep(2)
+    time.sleep(1)
+    connections = chrome.load()
+    chrome.execute_js('window.scrollBy(0,4000)')
     if connections == chrome.load('section/ul/li/div'):
         break
 
@@ -18,29 +21,24 @@ while True:
 mynetwork = []
 
 for connection in connections:
+    row = connection.text.split('\n')
+    name = row[0]
+    occupation = row[row.index("Member’s occupation") + 1]
     try:
-        row = connection.text.split('\n')
-        name = row[0]
-        occupation = row[row.index("Member’s occupation") + 1]
-        try:
-            title, company = occupation.split(' at ')
-        except:
-            title = None
-            company = occupation
-        profile_link = connection.find_element_by_xpath('a').get_attribute('href')
-        mynetwork.append({
-            'Name': name,
-            'Title': title,
-            'Company': company,
-            'Profile Link': profile_link
-        })
+        title, company = occupation.split(' at ')
     except:
-        pass
+        title = None
+        company = occupation
+    profile_link = connection.find_element_by_xpath('a').get_attribute('href')
+    mynetwork.append({
+        'Name': name,
+        'Title': title,
+        'Company': company,
+        'Profile Link': profile_link
+    })
 
+# NOTE: do I need to use this commented-out code in the future?
 # pd.DataFrame(mynetwork).to_csv('data.csv', index=False)
-
-
-
 for person in mynetwork:
     if mynetwork.index(person) % 100 == 0:
         chrome.refresh()
