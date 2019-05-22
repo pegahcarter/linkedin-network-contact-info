@@ -7,7 +7,6 @@ class Chrome:
 
     load_interval = 0.1
     scroll_element = 'section/ul/li/div'
-    network_count = 1
 
     def __init__(self):
         username, password = pd.read_csv('login.csv').values[0]
@@ -45,11 +44,18 @@ class Chrome:
         self.web.get(url)
 
     def load_element(self, element):
-        results = self.web.find_elements_by_xpath('//' + element)
-        if len(results) == 1:
-            return results[0]
-        else:
-            return results
+        for i in range(100):
+            time.sleep(.1)
+            results = self.web.find_elements_by_xpath('//' + element)
+            if results is None:
+                continue
+
+            if len(results) == 1:
+                return results[0]
+            else:
+                return results
+            break
+
 
     def send_keys(self, element, string):
         textbox = self.load_element(element)
